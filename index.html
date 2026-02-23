@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Up OpenClaw on a VPS — 10 Minute Guide</title>
+<meta name="description" content="A minimal guide to get OpenClaw running on a fresh Hetzner VPS in under 10 minutes. Your own AI assistant for ~$10/month.">
+<meta property="og:title" content="Set Up OpenClaw on a VPS">
+<meta property="og:description" content="A minimal guide to get your own AI assistant running on a fresh server in ~10 minutes.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://guide.tom.bingo">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --bg:#fafafa;--bg-code:#0f1117;--bg-card:#fff;
+  --border:#e5e7eb;--border-h:#d1d5db;
+  --text:#111827;--text-2:#4b5563;--text-3:#9ca3af;
+  --accent:#6d28d9;--accent-light:#ede9fe;--accent-bg:rgba(109,40,217,.06);
+  --green:#059669;--green-bg:#ecfdf5;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent-light)}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(250,250,250,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0}
+.nav-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+.nav-brand{font-weight:700;font-size:15px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-brand .icon{width:24px;height:24px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.nav-links{display:flex;gap:20px;font-size:13px}
+.nav-links a{color:var(--text-2);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+
+/* Hero */
+.hero{max-width:720px;margin:0 auto;padding:80px 24px 60px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-light);padding:6px 14px;border-radius:100px;margin-bottom:20px;letter-spacing:.3px}
+.hero h1{font-size:clamp(2rem,5vw,2.8rem);font-weight:700;letter-spacing:-.5px;line-height:1.15;margin-bottom:16px}
+.hero p{font-size:17px;color:var(--text-2);max-width:520px;margin:0 auto 32px;line-height:1.7}
+.hero-cost{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--green);background:var(--green-bg);padding:8px 18px;border-radius:100px}
+
+/* Content */
+.content{max-width:720px;margin:0 auto;padding:20px 24px 100px}
+
+/* Steps */
+.step{margin-bottom:48px;padding-bottom:48px;border-bottom:1px solid var(--border)}
+.step:last-of-type{border-bottom:none}
+.step-num{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-bg);display:inline-block;padding:4px 10px;border-radius:6px;margin-bottom:12px;letter-spacing:.5px}
+.step h2{font-size:1.4rem;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
+.step p{color:var(--text-2);margin-bottom:16px}
+.step p a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.step ul{margin:0 0 16px 20px;color:var(--text-2)}
+.step li{margin-bottom:4px}
+
+/* Code blocks */
+pre{background:var(--bg-code);border-radius:10px;padding:20px 24px;overflow-x:auto;margin-bottom:16px;position:relative}
+pre code{font-family:var(--mono);font-size:13.5px;line-height:1.8;color:#e5e7eb;display:block}
+.code-label{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:10px;color:#6b7280;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase}
+code{font-family:var(--mono);font-size:14px;background:#f3f4f6;padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+/* Info box */
+.info{background:var(--accent-bg);border:1px solid rgba(109,40,217,.1);border-radius:10px;padding:16px 20px;margin-bottom:16px;font-size:14px;color:var(--text-2);display:flex;gap:10px;align-items:flex-start}
+.info .icon{flex-shrink:0;margin-top:2px}
+
+/* Table */
+.ref-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px}
+.ref-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;border-bottom:2px solid var(--border)}
+.ref-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text-2)}
+.ref-table td:first-child{font-family:var(--mono);font-size:13px;color:var(--text);white-space:nowrap}
+.ref-table tr:hover td{background:#f9fafb}
+
+/* Cost grid */
+.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.cost-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center}
+.cost-card .price{font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.cost-card .label{font-size:12px;color:var(--text-3);letter-spacing:.3px}
+.cost-card .note{font-size:11px;color:var(--text-3);margin-top:4px}
+
+/* Progress bar */
+.progress{display:flex;gap:4px;margin-bottom:48px}
+.progress-step{flex:1;height:4px;border-radius:2px;background:var(--border);cursor:pointer;transition:background .2s}
+.progress-step.active{background:var(--accent)}
+
+/* Footer */
+footer{max-width:720px;margin:0 auto;padding:40px 24px;border-top:1px solid var(--border);text-align:center}
+footer p{font-size:13px;color:var(--text-3)}
+footer a{color:var(--text-2);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+/* Scroll animations */
+.fade-in{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .hero{padding:60px 20px 40px}
+  .content{padding:20px 20px 80px}
+  .cost-grid{grid-template-columns:1fr}
+  pre{padding:16px;border-radius:8px}
+  pre code{font-size:12.5px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="icon">⚡</span> OpenClaw Setup Guide</a>
+    <div class="nav-links">
+      <a href="https://docs.openclaw.ai" target="_blank">Docs</a>
+      <a href="https://github.com/openclaw/openclaw" target="_blank">GitHub</a>
+      <a href="https://discord.com/invite/clawd" target="_blank">Discord</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">⏱ ~10 minutes</div>
+  <h1>Set up your own AI assistant on a VPS</h1>
+  <p>A minimal, step-by-step guide to get OpenClaw running on a fresh Hetzner server. Six steps, no fluff.</p>
+  <div class="hero-cost">💰 Total cost: ~$10/month</div>
+</div>
+
+<div class="content">
+
+<div class="progress" id="progress">
+  <div class="progress-step" data-step="1"></div>
+  <div class="progress-step" data-step="2"></div>
+  <div class="progress-step" data-step="3"></div>
+  <div class="progress-step" data-step="4"></div>
+  <div class="progress-step" data-step="5"></div>
+  <div class="progress-step" data-step="6"></div>
+</div>
+
+<!-- Step 1 -->
+<div class="step fade-in" data-step="1">
+  <div class="step-num">Step 1</div>
+  <h2>Provision a Server</h2>
+  <p>Go to <a href="https://console.hetzner.cloud/" target="_blank">Hetzner Cloud</a> and create a new server:</p>
+  <ul>
+    <li><strong>OS:</strong> Ubuntu 24.04</li>
+    <li><strong>Type:</strong> CX22 (2 vCPU, 4GB RAM) — plenty to start</li>
+    <li><strong>Location:</strong> Closest to you</li>
+    <li><strong>SSH Key:</strong> Add your public key during setup</li>
+  </ul>
+  <p>Once it's live, grab the IP from the Hetzner dashboard and SSH in:</p>
+  <pre><code><span style="color:#9ca3af"># Connect as root</span>
+ssh root@YOUR_SERVER_IP</code><span class="code-label">terminal</span></pre>
+</div>
+
+<!-- Step 2 -->
+<div class="step fade-in" data-step="2">
+  <div class="step-num">Step 2</div>
+  <h2>Create a User</h2>
+  <p>Don't run OpenClaw as root. Create a dedicated user with passwordless sudo:</p>
+  <pre><code><span style="color:#9ca3af"># Create user</span>
+adduser claw
+usermod -aG sudo claw
+
+<span style="color:#9ca3af"># Passwordless sudo (so OpenClaw can install packages)</span>
+echo "claw ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/claw
+chmod 440 /etc/sudoers.d/claw</code><span class="code-label">bash</span></pre>
+
+  <p>Copy your SSH key to the new user, then switch over:</p>
+  <pre><code><span style="color:#9ca3af"># Copy SSH key from root to claw</span>
+mkdir -p /home/claw/.ssh
+cp ~/.ssh/authorized_keys /home/claw/.ssh/
+chown -R claw:claw /home/claw/.ssh
+
+<span style="color:#9ca3af"># Now disconnect and reconnect as claw</span>
+ssh claw@YOUR_SERVER_IP</code><span class="code-label">bash</span></pre>
+</div>
+
+<!-- Step 3 -->
+<div class="step fade-in" data-step="3">
+  <div class="step-num">Step 3</div>
+  <h2>Install Homebrew</h2>
+  <p>OpenClaw installs via Homebrew. Run the installer:</p>
+  <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code><span class="code-label">bash</span></pre>
+  <p>Then add it to your PATH (the installer will show these exact lines):</p>
+  <pre><code>echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"</code><span class="code-label">bash</span></pre>
+</div>
+
+<!-- Step 4 -->
+<div class="step fade-in" data-step="4">
+  <div class="step-num">Step 4</div>
+  <h2>Install OpenClaw</h2>
+  <pre><code>brew install openclaw</code><span class="code-label">bash</span></pre>
+  <p>Then run the setup wizard:</p>
+  <pre><code>openclaw onboard</code><span class="code-label">bash</span></pre>
+  <div class="info"><span class="icon">💡</span><span>The wizard walks you through choosing a model provider, entering your API key, and connecting a chat channel (Telegram, Slack, etc.).</span></div>
+</div>
+
+<!-- Step 5 -->
+<div class="step fade-in" data-step="5">
+  <div class="step-num">Step 5</div>
+  <h2>Add Your API Key</h2>
+  <p>You need an API key from a model provider. <a href="https://console.anthropic.com/" target="_blank">Anthropic</a> (Claude) is recommended.</p>
+  <p>The onboard wizard asks for it automatically. To update it later:</p>
+  <pre><code>openclaw configure --section auth</code><span class="code-label">bash</span></pre>
+</div>
+
+<!-- Step 6 -->
+<div class="step fade-in" data-step="6">
+  <div class="step-num">Step 6</div>
+  <h2>Start the Gateway</h2>
+  <pre><code><span style="color:#9ca3af"># Start in the background (persists after disconnect)</span>
+openclaw gateway start --daemon</code><span class="code-label">bash</span></pre>
+  <p><strong>That's it.</strong> OpenClaw is running. If you connected Telegram or Slack during setup, send it a message — it'll respond.</p>
+  <p>Check status anytime:</p>
+  <pre><code>openclaw status</code><span class="code-label">bash</span></pre>
+</div>
+
+<!-- Quick Reference -->
+<div class="step fade-in">
+  <div class="step-num">Reference</div>
+  <h2>Quick Reference</h2>
+  <table class="ref-table">
+    <thead>
+      <tr><th>Command</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>openclaw onboard</td><td>First-time setup wizard</td></tr>
+      <tr><td>openclaw gateway start</td><td>Start the gateway</td></tr>
+      <tr><td>openclaw gateway start --daemon</td><td>Start in background</td></tr>
+      <tr><td>openclaw gateway stop</td><td>Stop the gateway</td></tr>
+      <tr><td>openclaw status</td><td>Check status</td></tr>
+      <tr><td>openclaw configure --section auth</td><td>Update API keys</td></tr>
+      <tr><td>openclaw configure --section channels</td><td>Add/edit chat channels</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Cost -->
+<div class="step fade-in">
+  <div class="step-num">Cost</div>
+  <h2>What It Costs</h2>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="price">~$5</div>
+      <div class="label">Hetzner CX22</div>
+      <div class="note">/month</div>
+    </div>
+    <div class="cost-card">
+      <div class="price">~$3</div>
+      <div class="label">Anthropic API</div>
+      <div class="note">/month (light use)</div>
+    </div>
+    <div class="cost-card">
+      <div class="price">~$1</div>
+      <div class="label">Domain</div>
+      <div class="note">/month (optional)</div>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--text-3);font-size:14px">Your own personal AI assistant for under $10/month.</p>
+</div>
+
+</div>
+
+<footer>
+  <p>Made by <a href="https://tom.bingo" target="_blank">Tom Skopek</a> · <a href="https://github.com/tomskopek/openclaw-guide" target="_blank">View on GitHub</a></p>
+</footer>
+
+<script>
+// Scroll animations
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Progress bar
+const steps = document.querySelectorAll('.step[data-step]');
+const bars = document.querySelectorAll('.progress-step');
+const progObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const n = parseInt(e.target.dataset.step);
+      bars.forEach(b => { b.classList.toggle('active', parseInt(b.dataset.step) <= n); });
+    }
+  });
+}, { threshold: 0.3 });
+steps.forEach(s => progObs.observe(s));
+
+// Click progress bar to scroll to step
+bars.forEach(b => {
+  b.addEventListener('click', () => {
+    const step = document.querySelector(`.step[data-step="${b.dataset.step}"]`);
+    if (step) step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
