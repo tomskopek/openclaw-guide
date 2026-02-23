@@ -9,40 +9,44 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" media="print" onload="this.media='all'">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:#fff;color:#111;font-size:16px;line-height:1.7;max-width:640px;margin:0 auto;padding:40px 24px 80px}
-h1{font-size:1.8rem;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
-h2{font-size:1.2rem;font-weight:600;margin:48px 0 12px;padding-top:24px;border-top:1px solid #eee}
-h2:first-of-type{border-top:none;margin-top:32px}
-p{color:#444;margin-bottom:16px}
-a{color:#111;text-decoration:underline;text-underline-offset:2px}
-ul{margin:0 0 16px 20px;color:#444}
-li{margin-bottom:6px}
+body{font-family:'Inter',system-ui,sans-serif;background:#fff;color:#111;font-size:16px;line-height:1.7;max-width:640px;margin:0 auto;padding:40px 20px 80px}
+h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+h2{font-size:1.1rem;font-weight:600;margin:40px 0 12px;padding-top:20px;border-top:1px solid #eee}
+h2:first-of-type{border-top:none;margin-top:24px}
+p{color:#444;margin-bottom:14px}
+a{color:#111}
+ul{margin:0 0 14px 20px;color:#444}
+li{margin-bottom:4px}
 strong{color:#111}
-pre{background:#111;border-radius:6px;padding:16px 20px;overflow-x:auto;margin-bottom:16px}
-pre code{font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.7;color:#e5e5e5}
-code{font-family:'JetBrains Mono',monospace;font-size:14px;background:#f5f5f5;padding:2px 5px;border-radius:3px}
-.comment{color:#777}
-.subtitle{color:#666;font-size:17px;margin-bottom:32px}
-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px}
-th{text-align:left;font-weight:600;padding:8px 12px;border-bottom:2px solid #eee}
-td{padding:8px 12px;border-bottom:1px solid #eee;color:#444}
-td:first-child{font-family:'JetBrains Mono',monospace;font-size:13px;color:#111;white-space:nowrap}
-.cost{display:flex;gap:16px;margin-bottom:16px}
-.cost div{flex:1;text-align:center;padding:16px;border:1px solid #eee;border-radius:6px}
-.cost .price{font-size:1.3rem;font-weight:700}
-.cost .label{font-size:13px;color:#666;margin-top:2px}
-footer{margin-top:48px;padding-top:24px;border-top:1px solid #eee;font-size:13px;color:#999}
+
+/* Code blocks — light background for readability on all screens */
+pre{background:#f5f5f5;border:1px solid #e5e5e5;border-radius:6px;padding:14px 16px;overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+pre code{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;color:#111;white-space:pre;word-break:normal}
+code{font-family:'JetBrains Mono',monospace;font-size:13px;background:#f5f5f5;padding:2px 5px;border-radius:3px}
+.comment{color:#888}
+
+.subtitle{color:#666;font-size:15px;margin-bottom:28px}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:14px}
+th{text-align:left;font-weight:600;padding:8px 0;border-bottom:2px solid #eee}
+td{padding:8px 0;border-bottom:1px solid #eee;color:#444;vertical-align:top}
+td:first-child{font-family:'JetBrains Mono',monospace;font-size:12px;color:#111;padding-right:16px}
+
+/* Cost — simple list, not cards */
+.cost-list{margin-bottom:14px}
+.cost-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:15px}
+.cost-row .label{color:#444}
+.cost-row .price{font-weight:600}
+
+footer{margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:13px;color:#999}
 footer a{color:#666}
-@media(max-width:500px){
-  body{padding:24px 16px 60px}
-  .cost{flex-direction:column;gap:8px}
-}
 </style>
 </head>
 <body>
 
 <h1>Set Up OpenClaw on a VPS</h1>
-<p class="subtitle">~10 minutes. Six steps. Your own AI assistant.</p>
+<p class="subtitle">~10 minutes · 6 steps · your own AI assistant</p>
 
 <h2>1. Provision a Server</h2>
 <p>Create a server on <a href="https://console.hetzner.cloud/" target="_blank">Hetzner Cloud</a>:</p>
@@ -60,7 +64,8 @@ footer a{color:#666}
 usermod -aG sudo claw
 
 <span class="comment"># Passwordless sudo</span>
-echo "claw ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/claw
+echo "claw ALL=(ALL) NOPASSWD:ALL" \
+  > /etc/sudoers.d/claw
 chmod 440 /etc/sudoers.d/claw</code></pre>
 
 <p>Copy your SSH key to the new user:</p>
@@ -72,10 +77,12 @@ chown -R claw:claw /home/claw/.ssh</code></pre>
 <pre><code>ssh claw@YOUR_SERVER_IP</code></pre>
 
 <h2>3. Install Homebrew</h2>
-<pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+<pre><code>/bin/bash -c "$(curl -fsSL \
+  https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
 
 <p>Add to your PATH:</p>
-<pre><code>echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+<pre><code>echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' \
+  >> ~/.bashrc
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"</code></pre>
 
 <h2>4. Install OpenClaw</h2>
@@ -95,7 +102,7 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"</code></pre>
 
 <h2>Quick Reference</h2>
 <table>
-  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><th>Command</th><th>Description</th></tr>
   <tr><td>openclaw onboard</td><td>First-time setup</td></tr>
   <tr><td>openclaw gateway start --daemon</td><td>Start in background</td></tr>
   <tr><td>openclaw gateway stop</td><td>Stop</td></tr>
@@ -105,12 +112,12 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"</code></pre>
 </table>
 
 <h2>Cost</h2>
-<div class="cost">
-  <div><div class="price">~$5</div><div class="label">Hetzner CX22/mo</div></div>
-  <div><div class="price">~$3</div><div class="label">Anthropic API/mo</div></div>
-  <div><div class="price">~$1</div><div class="label">Domain/mo (optional)</div></div>
+<div class="cost-list">
+  <div class="cost-row"><span class="label">Hetzner CX22</span><span class="price">~$5/mo</span></div>
+  <div class="cost-row"><span class="label">Anthropic API (light use)</span><span class="price">~$3/mo</span></div>
+  <div class="cost-row"><span class="label">Domain (optional)</span><span class="price">~$1/mo</span></div>
+  <div class="cost-row"><span class="label"><strong>Total</strong></span><span class="price"><strong>&lt;$10/mo</strong></span></div>
 </div>
-<p style="text-align:center;color:#999;font-size:14px">Your own AI assistant for under $10/month.</p>
 
 <footer>
   <p>By <a href="https://tom.bingo">Tom Skopek</a> · <a href="https://github.com/tomskopek/openclaw-guide">GitHub</a> · <a href="https://docs.openclaw.ai">OpenClaw Docs</a></p>
